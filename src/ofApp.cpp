@@ -5,6 +5,8 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     
+    searchForDacs();
+    
     laserWidth = 800;
     laserHeight = 800;
     laser.setup(laserWidth, laserHeight);
@@ -20,6 +22,48 @@ void ofApp::setup(){
     currentLaserEffect = 0;
     numLaserEffects = 8;
     
+}
+
+void ofApp::searchForDacs()
+{
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0) {
+      cout << "null socket" << endl;
+        return NULL;
+    }
+    
+    int opt = 1;
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt,
+                   sizeof opt) < 0) {
+        cout << "setsockopt SO_REUSEADDR" <<endl;
+        return NULL;
+    }
+    
+    struct sockaddr_in addr = {
+        .sin_family = AF_INET,
+        .sin_addr.s_addr = htonl(INADDR_ANY), .sin_port = htons(7654)
+    };
+    
+    if (::bind(sock, (struct sockaddr *)&addr, sizeof addr) < 0) {
+        cout << "NULLbind" <<endl;
+        return NULL;
+    }
+    
+    cout << "_: listening for DACs..." <<endl;
+    
+    while (1) {
+        cout << "Looking for dac" << endl;
+        struct sockaddr_in src;
+        struct dac_broadcast buf;
+        unsigned int srclen = sizeof src;
+        int len = recvfrom(sock, (char *)&buf, sizeof buf, 0,
+                           (struct sockaddr *)&src, &srclen);
+        if (len < 0) {
+            cout << "recvfrom" <<endl;
+            return NULL;
+        }
+        string foundIP =inet_ntoa(src.sin_addr);
+    }
 }
 
 //--------------------------------------------------------------

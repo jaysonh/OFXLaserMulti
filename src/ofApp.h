@@ -5,6 +5,15 @@
 #include "ofxLaserDacEtherdream.h"
 #include "ofxGui.h"
 
+struct dac_broadcast {
+    uint8_t mac_address[6];
+    uint16_t hw_revision;
+    uint16_t sw_revision;
+    uint16_t buffer_capacity;
+    uint32_t max_point_rate;
+    struct dac_status status;
+} __attribute__ ((packed));
+
 class ofApp : public ofBaseApp{
     
 public:
@@ -29,6 +38,7 @@ public:
     int laserWidth;
     int laserHeight;
     
+    void searchForDacs();
     
     
     vector<ofPolyline> polyLines;
